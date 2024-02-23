@@ -57,6 +57,6 @@ with gr.Blocks() as demo:
     
     generate_btn.click(fn=generate, inputs=[prompt_input, num_images_input, guidance_scale], outputs=gallery)
     
-    gr.Markdown("If a generated image appears entirely black, it has been filtered out by the NSFW safety checker. Please try generating additional images.)
+    gr.Markdown("If a generated image appears entirely black, it has been filtered out by the NSFW safety checker. Please try generating additional images.")
 
 demo.queue().launch()
