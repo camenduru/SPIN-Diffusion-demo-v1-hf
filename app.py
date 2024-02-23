@@ -34,7 +34,7 @@ def generate(prompt: str, num_images: int=5, guidance_scale=7.5):
 
 with gr.Blocks() as demo:
     gr.Markdown("# SPIN-Diffusion 1.0 Demo")
-
+    gr.Markdown("A self-play fine-tuned diffusion model from runwayml/stable-diffusion-v1-5, using winner images from the yuvalkirstain/pickapic_v2 dataset.")
     with gr.Row():
         prompt_input = gr.Textbox(label="Enter your prompt", placeholder="Type something...", lines=2)
         generate_btn = gr.Button("Generate images")
@@ -56,6 +56,7 @@ with gr.Blocks() as demo:
     gr.Examples(examples=examples, inputs=prompt_input, fn=generate, outputs=gallery)
     
     generate_btn.click(fn=generate, inputs=[prompt_input, num_images_input, guidance_scale], outputs=gallery)
-
+    
+    gr.Markdown("If a generated image appears entirely black, it has been filtered out by the NSFW safety checker. Please try generating additional images.)
 
 demo.queue().launch()
