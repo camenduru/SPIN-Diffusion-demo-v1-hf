@@ -1,1 +1,4 @@
 diffusers
+torch
+random
+numpy
