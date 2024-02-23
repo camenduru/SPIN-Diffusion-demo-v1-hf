@@ -3,6 +3,8 @@ from diffusers import StableDiffusionPipeline, UNet2DConditionModel
 import torch
 import random
 import numpy as np
+import spaces
+
 
 MODEL="UCLA-AGI/SPIN-Diffusion-iter3"
 
@@ -15,19 +17,22 @@ def set_seed(seed=5775709):
 
 set_seed()
 
-def get_pipeline(device='cpu'):
+
+
+def get_pipeline(device='cuda'):
     model_id = "runwayml/stable-diffusion-v1-5"
     #pipe = StableDiffusionPipeline.from_pretrained(model_id, torch_dtype=torch.float16, safety_checker = None, requires_safety_checker = False)
-    pipe = StableDiffusionPipeline.from_pretrained(model_id, torch_dtype=torch.float32)
+    if torch.cuda.is_available():
+        pipe = StableDiffusionPipeline.from_pretrained(model_id, torch_dtype=torch.float32)
 
-    # load finetuned model
-    unet_id = MODEL
-    unet = UNet2DConditionModel.from_pretrained(unet_id, subfolder="unet", torch_dtype=torch.float32)
-    pipe.unet = unet
-    pipe = pipe.to(device)
-    return pipe
+        # load finetuned model
+        unet_id = MODEL
+        unet = UNet2DConditionModel.from_pretrained(unet_id, subfolder="unet", torch_dtype=torch.float32)
+        pipe.unet = unet
+        pipe = pipe.to(device)
+        return pipe
 
-
+@spaces.GPU(enable_queue=True)
 def generate(prompt: str, num_images: int=5, guidance_scale=7.5):
     pipe = get_pipeline()
     generator = torch.Generator(pipe.device).manual_seed(5775709)
