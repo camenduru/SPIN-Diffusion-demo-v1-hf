@@ -41,7 +41,7 @@ with gr.Blocks() as demo:
         generate_btn = gr.Button("Generate images")
     guidance_scale = gr.Slider(label="Guidance Scale", minimum=0, maximum=50, value=7.5, step=0.1)
     num_images_input = gr.Number(label="Number of images", value=5, minimum=1, maximum=10, step=1)
-    gallery = gr.Gallery(label="Generated images", elem_id="gallery", columns=5, object_fit="contain")
+    gallery = gr.Gallery(label="Generated images", elem_id="gallery", columns=3, object_fit="contain")
     
     # Define your example prompts
     examples = [
