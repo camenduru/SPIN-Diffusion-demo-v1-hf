@@ -1,4 +1,3 @@
 diffusers
 torch
-random
 numpy
