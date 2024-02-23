@@ -6,7 +6,6 @@ import numpy as np
 import spaces
 
 
-MODEL="UCLA-AGI/SPIN-Diffusion-iter3"
 
 def set_seed(seed=5775709):
     random.seed(seed)
@@ -17,24 +16,15 @@ def set_seed(seed=5775709):
 
 set_seed()
 
+if torch.cuda.is_available():
+    pipe = StableDiffusionPipeline.from_pretrained("runwayml/stable-diffusion-v1-5", torch_dtype=torch.float16, variant="fp16")
 
-
-def get_pipeline(device='cuda'):
-    model_id = "runwayml/stable-diffusion-v1-5"
-    #pipe = StableDiffusionPipeline.from_pretrained(model_id, torch_dtype=torch.float16, safety_checker = None, requires_safety_checker = False)
-    if torch.cuda.is_available():
-        pipe = StableDiffusionPipeline.from_pretrained(model_id, torch_dtype=torch.float32)
-
-        # load finetuned model
-        unet_id = MODEL
-        unet = UNet2DConditionModel.from_pretrained(unet_id, subfolder="unet", torch_dtype=torch.float32)
-        pipe.unet = unet
-        pipe = pipe.to(device)
-        return pipe
+    unet = UNet2DConditionModel.from_pretrained("UCLA-AGI/SPIN-Diffusion-iter3", subfolder="unet", torch_dtype=torch.float16)
+    pipe.unet = unet
+    pipe = pipe.to("cuda")
 
 @spaces.GPU(enable_queue=True)
 def generate(prompt: str, num_images: int=5, guidance_scale=7.5):
-    pipe = get_pipeline()
     generator = torch.Generator(pipe.device).manual_seed(5775709)
     # Ensure num_images is an integer
     num_images = int(num_images)
@@ -69,5 +59,5 @@ with gr.Blocks() as demo:
     
     generate_btn.click(fn=generate, inputs=[prompt_input, num_images_input, guidance_scale], outputs=gallery)
 
-if __name__ == "__main__":
-    demo.launch(share=True)
+
+demo.queue().launch()
