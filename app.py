@@ -34,7 +34,7 @@ def generate(prompt: str, num_images: int=5, guidance_scale=7.5):
 
 with gr.Blocks() as demo:
     gr.Markdown("# SPIN-Diffusion 1.0 Demo")
-    gr.Markdown("A **self-play** fine-tuned **diffusion model** from [runwayml/stable-diffusion-v1-5](https://huggingface.co/runwayml/stable-diffusion-v1-5), using winner images from the [yuvalkirstain/pickapic_v2](https://huggingface.co/datasets/yuvalkirstain/pickapic_v2) dataset. Paper: [Self-Play Fine-Tuning of Diffusion Models for Text-to-Image Generation](https://huggingface.co/papers/2402.10210). Model: [UCLA-AGI/SPIN-Diffusion-iter3](https://huggingface.co/UCLA-AGI/SPIN-Diffusion-iter3)")
+    gr.Markdown("A **self-play** fine-tuned **diffusion model** from [runwayml/stable-diffusion-v1-5](https://huggingface.co/runwayml/stable-diffusion-v1-5), using winner images from the [yuvalkirstain/pickapic_v2](https://huggingface.co/datasets/yuvalkirstain/pickapic_v2) dataset. SPIN-Diffusion generates images with superior visual appeal than previous fine-tuning methods. Paper: [Self-Play Fine-Tuning of Diffusion Models for Text-to-Image Generation](https://huggingface.co/papers/2402.10210). Model: [UCLA-AGI/SPIN-Diffusion-iter3](https://huggingface.co/UCLA-AGI/SPIN-Diffusion-iter3)")
     with gr.Row():
         prompt_input = gr.Textbox(label="Enter your prompt", placeholder="Type something...", lines=2)
         generate_btn = gr.Button("Generate images")
