@@ -22,6 +22,13 @@ if torch.cuda.is_available():
     unet = UNet2DConditionModel.from_pretrained("UCLA-AGI/SPIN-Diffusion-iter3", subfolder="unet", torch_dtype=torch.float16)
     pipe.unet = unet
     pipe = pipe.to("cuda")
+else:
+    pipe = StableDiffusionPipeline.from_pretrained("runwayml/stable-diffusion-v1-5", torch_dtype=torch.float32)
+
+    unet = UNet2DConditionModel.from_pretrained("UCLA-AGI/SPIN-Diffusion-iter3", subfolder="unet", torch_dtype=torch.float32)
+    pipe.unet = unet
+    pipe = pipe.to("cpu")
+    
 
 @spaces.GPU(enable_queue=True)
 def generate(prompt: str, num_images: int=5, guidance_scale=7.5):
