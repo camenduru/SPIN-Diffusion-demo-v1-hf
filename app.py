@@ -24,10 +24,9 @@ else:
 
 @spaces.GPU(enable_queue=True)
 def generate(prompt: str, num_images: int=5, guidance_scale=7.5):
-    generator = torch.Generator(pipe.device).manual_seed(5775709)
     # Ensure num_images is an integer
     num_images = int(num_images)
-    images = pipe(prompt, generator=generator, guidance_scale=guidance_scale, num_inference_steps=50, num_images_per_prompt=num_images).images
+    images = pipe(prompt, guidance_scale=guidance_scale, num_inference_steps=50, num_images_per_prompt=num_images).images
     images = [x.resize((512, 512)) for x in images]
     return images
 
@@ -41,7 +40,7 @@ with gr.Blocks() as demo:
         generate_btn = gr.Button("Generate images")
     guidance_scale = gr.Slider(label="Guidance Scale", minimum=0, maximum=50, value=7.5, step=0.1)
     num_images_input = gr.Number(label="Number of images", value=5, minimum=1, maximum=10, step=1)
-    gallery = gr.Gallery(label="Generated images", elem_id="gallery", columns=3, object_fit="contain")
+    gallery = gr.Gallery(label="Generated images", elem_id="gallery", columns=5, object_fit="contain")
     
     # Define your example prompts
     examples = [
