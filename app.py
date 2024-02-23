@@ -15,14 +15,14 @@ def set_seed(seed=5775709):
 
 set_seed()
 
-def get_pipeline(device='cuda'):
+def get_pipeline(device='cpu'):
     model_id = "runwayml/stable-diffusion-v1-5"
     #pipe = StableDiffusionPipeline.from_pretrained(model_id, torch_dtype=torch.float16, safety_checker = None, requires_safety_checker = False)
-    pipe = StableDiffusionPipeline.from_pretrained(model_id, torch_dtype=torch.float16)
+    pipe = StableDiffusionPipeline.from_pretrained(model_id, torch_dtype=torch.float32)
 
     # load finetuned model
     unet_id = MODEL
-    unet = UNet2DConditionModel.from_pretrained(unet_id, subfolder="unet", torch_dtype=torch.float16)
+    unet = UNet2DConditionModel.from_pretrained(unet_id, subfolder="unet", torch_dtype=torch.float32)
     pipe.unet = unet
     pipe = pipe.to(device)
     return pipe
