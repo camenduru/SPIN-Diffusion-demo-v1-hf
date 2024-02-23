@@ -1,0 +1,79 @@
+import gradio as gr
+import cv2
+from diffusers import StableDiffusionPipeline, UNet2DConditionModel
+import torch
+import random
+import numpy as np
+
+
+MODEL="/mnt/bn/ailab-yuningshen-psg/mlx/users/quanquan.gu/playground/trl/iter0_0_2.0e-5_linear200_new/checkpoints/checkpoint_0"
+MODEL="/mnt/bn/ailab-yuningshen-psg/mlx/users/quanquan.gu/playground/trl/iter2_12h_5.0e-8_beta5_rep_wtie/checkpoints/checkpoint_10"
+PROMPTS="/mnt/bn/ailab-yuningshen-psg/mlx/users/quanquan.gu/playground/trl/dataset/pickapic/pickapic_v2/validation_unique-00007_filtered.parquet"
+NUM=1
+
+
+
+def set_seed(seed=5775709):
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+
+set_seed()
+
+def get_pipeline(device='cuda'):
+    model_id = "runwayml/stable-diffusion-v1-5"
+    #pipe = StableDiffusionPipeline.from_pretrained(model_id, torch_dtype=torch.float16, safety_checker = None, requires_safety_checker = False)
+    pipe = StableDiffusionPipeline.from_pretrained(model_id, torch_dtype=torch.float16)
+
+    # load finetuned model
+    unet_id = MODEL
+    unet = UNet2DConditionModel.from_pretrained(unet_id, subfolder="unet", torch_dtype=torch.float16)
+    pipe.unet = unet
+    pipe = pipe.to(device)
+    return pipe
+
+
+def generate(prompt: str, num_images: int=5, guidance_scale=7.5):
+    pipe = get_pipeline()
+    generator = torch.Generator(pipe.device).manual_seed(5775709)
+    # Ensure num_images is an integer
+    num_images = int(num_images)
+    images = pipe(prompt, generator=generator, guidance_scale=guidance_scale, num_inference_steps=50, num_images_per_prompt=num_images).images
+    images = [x.resize((512, 512)) for x in images]
+    return images
+
+def gen_image(args, image):
+    output = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    return output
+
+
+
+
+with gr.Blocks() as demo:
+    gr.Markdown("# SPIN-Diffusion 1.0 Demo")
+
+    with gr.Row():
+        prompt_input = gr.Textbox(label="Enter your prompt", placeholder="Type something...", lines=2)
+        generate_btn = gr.Button("Generate images")
+    guidance_scale = gr.Slider(label="Guidance Scale", minimum=0, maximum=50, value=9, step=0.1)
+    num_images_input = gr.Number(label="Number of images", value=5, minimum=1, maximum=10, step=1)
+    gallery = gr.Gallery(label="Generated images", elem_id="gallery", columns=5, object_fit="contain")
+    
+    # Define your example prompts
+    examples = [
+        ["The Eiffel Tower at sunset"],
+        ["A futuristic city skyline"],
+        ["A cat wearing a wizard hat"],
+        ["A futuristic city at sunset"],
+        ["A landscape with mountains and lakes"],
+        ["A portrait of a robot in Renaissance style"],
+    ]
+    
+    # Add the Examples component linked to the prompt_input
+    gr.Examples(examples=examples, inputs=prompt_input, fn=generate, outputs=gallery)
+    
+    generate_btn.click(fn=generate, inputs=[prompt_input, num_images_input, guidance_scale], outputs=gallery)
+
+if __name__ == "__main__":
+    demo.launch(share=True)
